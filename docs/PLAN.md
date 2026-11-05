@@ -2,8 +2,10 @@
 PLAN: "feat: migrate an appkit app — App (from DATABASE_URL), Run (an open connection), Steps (the ordered list)"
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 2036931737131336487
+PR: https://github.com/webtyp/migrate/pull/1
+REVIEWED_COMMIT: 33c0c13ed00109050478227a631fefce4b13ddd4
 ---
 
 > Read AGENTS.md at the repo root before any change.
