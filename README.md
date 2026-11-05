@@ -1,7 +1,7 @@
 # migrate
 <img src="docs/img/badges.svg">
 
-Runs an appkit app's database migrations: the steps of every module, in order, for `webtyp dev`, the self-host supervisor and a pre-deploy.
+Runs database migrations: the steps passed to it, in order, for `webtyp dev`, the self-host supervisor and a pre-deploy.
 
 ## Why This Exists
 
@@ -10,7 +10,7 @@ Runs an appkit app's database migrations: the steps of every module, in order, f
 
 ## Before You Start
 
-This package is server-only. It opens a database using `App.Server.Database` and the `DATABASE_URL` environment variable.
+This package is server-only. It opens a database using an opener function and the `DATABASE_URL` environment variable.
 
 ## Step-by-Step
 
@@ -27,17 +27,17 @@ import (
 )
 
 func main() {
-	if err := migrate.App(config.App); err != nil {
+	if err := migrate.App(config.App.Server.Database, log.Println, config.Migrations...); err != nil {
 		log.Fatal(err)
 	}
 }
 ```
 
-The database diagram tool reads the list of migrations using `migrate.Steps`.
+The database diagram tool reads the list of migrations using `config.Migrations`.
 
 ## Documentation Map
 
 | Document | What it explains |
 |---|---|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Order of the steps (login, then modules) and stop at the first error |
-| [migrate.go](migrate.go) | `App`, `Run`, `Steps` and the errors |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Order of the steps and stop at the first error |
+| [migrate.go](migrate.go) | `App`, `Run` and the errors |

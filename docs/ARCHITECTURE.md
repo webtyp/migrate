@@ -2,7 +2,7 @@
 
 ## Order of Steps
 
-Migrations are run in a specific order: the login tables (like `auth`, `rbac`, and `access`) are run first, followed by each module's migrations in `App.Modules` order.
+Migrations are run in a specific order: the steps passed to `migrate.App` or `migrate.Run`, in slice order (typically `config.Migrations`).
 
 ## Stop at First Error
 
