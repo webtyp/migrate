@@ -1,10 +1,12 @@
 # migrate
+<img src="docs/img/badges.svg">
 
 Runs an appkit app's database migrations: the steps of every module, in order, for `webtyp dev`, the self-host supervisor and a pre-deploy.
 
 ## Why This Exists
 
-`appkit` is the production declaration of an app and must not carry development or tooling concerns. By extracting the migration logic into this package, one piece is used by the generated `migrate/main.go`, `webtyp dev`, the supervisor, and the database diagram.
+- **Without it:** [`appkit`](https://github.com/webtyp/appkit), the production declaration of an app, also builds and runs its migrations.
+- **With it:** one piece migrates an app — the generated `migrate/main.go`, `webtyp dev`, the self-host supervisor and the database diagram all use it. Each step runs [`ddl.Sync`](https://github.com/webtyp/ddl): it adds tables and columns and never deletes rows.
 
 ## Before You Start
 
@@ -35,4 +37,7 @@ The database diagram tool reads the list of migrations using `migrate.Steps`.
 
 ## Documentation Map
 
-- `docs/ARCHITECTURE.md`: Details about how migrations are ordered and executed.
+| Document | What it explains |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Order of the steps (login, then modules) and stop at the first error |
+| [migrate.go](migrate.go) | `App`, `Run`, `Steps` and the errors |
