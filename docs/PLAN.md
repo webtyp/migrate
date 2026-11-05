@@ -2,6 +2,8 @@
 PLAN: "feat: migrate an appkit app — App (from DATABASE_URL), Run (an open connection), Steps (the ordered list)"
 EXECUTOR: jules
 REVIEWER: none
+STATUS: running
+SESSION: 2036931737131336487
 ---
 
 > Read AGENTS.md at the repo root before any change.
