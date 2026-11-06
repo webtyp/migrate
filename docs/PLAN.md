@@ -3,6 +3,8 @@ PLAN: "feat!: migrate reports leftover columns (-plan), drops one on request (-d
 TAG: v0.1.0
 EXECUTOR: jules
 REVIEWER: none
+STATUS: running
+SESSION: 5699346617936302240
 ---
 
 > Read AGENTS.md at the repo root before any change.
