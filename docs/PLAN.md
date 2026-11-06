@@ -3,8 +3,10 @@ PLAN: "feat!: migrate reports leftover columns (-plan), drops one on request (-d
 TAG: v0.1.0
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 5699346617936302240
+PR: https://github.com/webtyp/migrate/pull/2
+REVIEWED_COMMIT: bc1500f04deffed2d16b431a803a504bee0f0ec4
 ---
 
 > Read AGENTS.md at the repo root before any change.
