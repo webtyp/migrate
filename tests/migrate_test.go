@@ -10,6 +10,7 @@ import (
 	"webtyp.com/ddl"
 	"webtyp.com/migrate"
 	"webtyp.com/model"
+	"webtyp.com/sqlite"
 	"webtyp.com/storage"
 	"webtyp.com/storage/mem"
 )
@@ -75,7 +76,7 @@ func TestRunLogs(t *testing.T) {
 
 func TestAppNoDatabaseURL(t *testing.T) {
 	t.Setenv("DATABASE_URL", "")
-	err := migrate.App(nil, nil)
+	_, err := migrate.App(nil, nil, nil)
 	if !errors.Is(err, migrate.ErrNoDatabaseURL) {
 		t.Errorf("expected ErrNoDatabaseURL, got %v", err)
 	}
@@ -83,7 +84,7 @@ func TestAppNoDatabaseURL(t *testing.T) {
 
 func TestAppNoOpen(t *testing.T) {
 	t.Setenv("DATABASE_URL", "x")
-	err := migrate.App(nil, nil)
+	_, err := migrate.App(nil, nil, nil)
 	if !errors.Is(err, migrate.ErrNoOpen) {
 		t.Errorf("expected ErrNoOpen, got %v", err)
 	}
@@ -95,7 +96,7 @@ func TestAppOpenError(t *testing.T) {
 	open := func(string) (storage.Conn, error) {
 		return nil, openErr
 	}
-	err := migrate.App(open, nil)
+	_, err := migrate.App(open, nil, nil)
 	if !errors.Is(err, openErr) {
 		t.Errorf("expected openErr, got %v", err)
 	}
@@ -104,7 +105,7 @@ func TestAppOpenError(t *testing.T) {
 func TestAppNoCompiler(t *testing.T) {
 	t.Setenv("DATABASE_URL", "x")
 	openMem := func(string) (storage.Conn, error) { return mem.New(), nil }
-	err := migrate.App(openMem, nil)
+	_, err := migrate.App(openMem, nil, nil)
 	if !errors.Is(err, migrate.ErrNoCompiler) {
 		t.Errorf("expected ErrNoCompiler, got %v", err)
 	}
@@ -113,14 +114,15 @@ func TestAppNoCompiler(t *testing.T) {
 func TestAppSuccess(t *testing.T) {
 	t.Setenv("DATABASE_URL", "x")
 	calls = nil
-	openDummy := func(string) (storage.Conn, error) {
-		return &dummyCompilerConn{Conn: mem.New()}, nil
-	}
-	err := migrate.App(openDummy, nil, step("a"), step("b"))
+	holidayDB(t)
+	_, err := migrate.App(sqlite.Open, nil, nil, step("a"), step("b"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(calls) != 2 || calls[0] != "migrate:a" || calls[1] != "migrate:b" {
+	// ddl.Capture runs each step once against its recorder, then Run runs them on the database.
+	if len(calls) != 4 || calls[2] != "migrate:a" || calls[3] != "migrate:b" {
 		t.Errorf("unexpected calls: %v", calls)
 	}
 }
+
+func memConn() storage.Conn { return mem.New() }

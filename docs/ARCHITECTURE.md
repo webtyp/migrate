@@ -2,12 +2,18 @@
 
 ## Order of Steps
 
-Migrations are run in a specific order: the steps passed to `migrate.App` or `migrate.Run`, in slice order (typically `config.Migrations`).
+`App` lists the tables the steps create (`ddl.Capture`, which runs each step once against a recorder that touches no database), opens `DATABASE_URL` with the opener, runs every step in slice order, copies each leftover column that `removed` moves to another column, and returns the columns the database keeps although no model has them (they hold data).
+
+See [MIGRATE_FLOW](diagrams/MIGRATE_FLOW.md).
 
 ## Stop at First Error
 
-The migration runner iterates through the steps on an open connection. It stops and returns an error immediately at the first step that fails.
+If a step fails to run, `App` stops at the first error.
 
-## Sync Keeps Rows
+## Leftover Columns
 
-Inside each step, `ddl.Sync` is used, which keeps existing rows intact while updating the table schema.
+`App` never drops a column. It copies `MovedTo` on every run, so production repeats the copy without dropping; only rows where the target is empty are filled. It returns only columns with data.
+
+## Dropping a Column
+
+Dropping a column happens only via `Drop` and only by a person's decision. It copies first when `MovedTo` is set.
