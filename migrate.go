@@ -54,12 +54,12 @@ func Run(conn ddl.Execer, compiler ddl.Compiler, log func(...any), steps ...ddl.
 
 // App lists the tables the steps create (ddl.Capture, which runs each step once against a
 // recorder that touches no database), opens DATABASE_URL with open, runs every step in order, copies each
-// leftover column that removed moves to another column, and returns the columns the
+// leftover column that schema.Removed moves to another column, and returns the columns the
 // database keeps although no model has them (they hold data). It never drops a column.
 //
-// Example (migrate/main.go): left, err := migrate.App(config.App.Server.Database, log.Println, config.Removed, config.Migrations...)
-func App(open func(dsn string) (storage.Conn, error), log func(...any), removed []ddl.Removed, steps ...ddl.Step) ([]ddl.Leftover, error) {
-	tables, err := ddl.Capture(steps)
+// Example (migrate/main.go): left, err := migrate.App(config.App.Server.Database, log.Println, config.Schema)
+func App(open func(dsn string) (storage.Conn, error), log func(...any), schema ddl.Schema) ([]ddl.Leftover, error) {
+	tables, err := ddl.Capture(schema.Steps)
 	if err != nil {
 		return nil, err
 	}
@@ -67,11 +67,11 @@ func App(open func(dsn string) (storage.Conn, error), log func(...any), removed 
 	if err != nil {
 		return nil, err
 	}
-	if err := Run(conn, compiler, log, steps...); err != nil {
+	if err := Run(conn, compiler, log, schema.Steps...); err != nil {
 		return nil, err
 	}
 	db := ddl.New(conn, compiler)
-	left, err := db.Leftovers(tables, removed)
+	left, err := db.Leftovers(tables, schema.Removed)
 	if err != nil {
 		return nil, err
 	}
@@ -87,11 +87,11 @@ func App(open func(dsn string) (storage.Conn, error), log func(...any), removed 
 }
 
 // Drop opens DATABASE_URL with open and drops one column, data included: target is
-// "table.column". When removed moves that column to another one, it copies it first.
+// "table.column". When schema.Removed moves that column to another one, it copies it first.
 // Only for a decision a person made (webtyp dev's «yes»).
 //
-// Example (migrate/main.go): err := migrate.Drop(config.App.Server.Database, config.Removed, "holiday.label")
-func Drop(open func(dsn string) (storage.Conn, error), removed []ddl.Removed, target string) error {
+// Example (migrate/main.go): err := migrate.Drop(config.App.Server.Database, config.Schema, "holiday.label")
+func Drop(open func(dsn string) (storage.Conn, error), schema ddl.Schema, target string) error {
 	table, column, ok := strings.Cut(target, columnSeparator)
 	if !ok || table == "" || column == "" {
 		return ErrDropTarget
@@ -101,7 +101,7 @@ func Drop(open func(dsn string) (storage.Conn, error), removed []ddl.Removed, ta
 		return err
 	}
 	db := ddl.New(conn, compiler)
-	for _, r := range removed {
+	for _, r := range schema.Removed {
 		if r.Table == table && r.Column == column && r.MovedTo != "" {
 			if err := db.CopyColumn(r); err != nil {
 				return err

@@ -2,7 +2,7 @@
 
 ## Order of Steps
 
-`App` lists the tables the steps create (`ddl.Capture`, which runs each step once against a recorder that touches no database), opens `DATABASE_URL` with the opener, runs every step in slice order, copies each leftover column that `removed` moves to another column, and returns the columns the database keeps although no model has them (they hold data).
+`App` lists the tables the steps create (`ddl.Capture`, which runs each step once against a recorder that touches no database), opens `DATABASE_URL` with the opener, runs every step of `schema.Steps` in slice order, copies each leftover column that `schema.Removed` moves to another column, and returns the columns the database keeps although no model has them (they hold data).
 
 See [MIGRATE_FLOW](diagrams/MIGRATE_FLOW.md).
 

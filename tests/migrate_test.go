@@ -76,7 +76,7 @@ func TestRunLogs(t *testing.T) {
 
 func TestAppNoDatabaseURL(t *testing.T) {
 	t.Setenv("DATABASE_URL", "")
-	_, err := migrate.App(nil, nil, nil)
+	_, err := migrate.App(nil, nil, ddl.Schema{})
 	if !errors.Is(err, migrate.ErrNoDatabaseURL) {
 		t.Errorf("expected ErrNoDatabaseURL, got %v", err)
 	}
@@ -84,7 +84,7 @@ func TestAppNoDatabaseURL(t *testing.T) {
 
 func TestAppNoOpen(t *testing.T) {
 	t.Setenv("DATABASE_URL", "x")
-	_, err := migrate.App(nil, nil, nil)
+	_, err := migrate.App(nil, nil, ddl.Schema{})
 	if !errors.Is(err, migrate.ErrNoOpen) {
 		t.Errorf("expected ErrNoOpen, got %v", err)
 	}
@@ -96,7 +96,7 @@ func TestAppOpenError(t *testing.T) {
 	open := func(string) (storage.Conn, error) {
 		return nil, openErr
 	}
-	_, err := migrate.App(open, nil, nil)
+	_, err := migrate.App(open, nil, ddl.Schema{})
 	if !errors.Is(err, openErr) {
 		t.Errorf("expected openErr, got %v", err)
 	}
@@ -105,7 +105,7 @@ func TestAppOpenError(t *testing.T) {
 func TestAppNoCompiler(t *testing.T) {
 	t.Setenv("DATABASE_URL", "x")
 	openMem := func(string) (storage.Conn, error) { return mem.New(), nil }
-	_, err := migrate.App(openMem, nil, nil)
+	_, err := migrate.App(openMem, nil, ddl.Schema{})
 	if !errors.Is(err, migrate.ErrNoCompiler) {
 		t.Errorf("expected ErrNoCompiler, got %v", err)
 	}
@@ -115,7 +115,7 @@ func TestAppSuccess(t *testing.T) {
 	t.Setenv("DATABASE_URL", "x")
 	calls = nil
 	holidayDB(t)
-	_, err := migrate.App(sqlite.Open, nil, nil, step("a"), step("b"))
+	_, err := migrate.App(sqlite.Open, nil, ddl.Schema{Steps: []ddl.Step{step("a"), step("b")}})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

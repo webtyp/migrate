@@ -3,7 +3,7 @@ module webtyp.com/migrate
 go 1.26.8
 
 require (
-	webtyp.com/ddl v0.0.45
+	webtyp.com/ddl v0.0.46
 	webtyp.com/env v0.1.3
 	webtyp.com/model v0.2.13
 	webtyp.com/sqlite v0.3.30
@@ -13,6 +13,8 @@ require (
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/mattn/go-isatty v0.0.23 // indirect
+	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	modernc.org/libc v1.74.1 // indirect

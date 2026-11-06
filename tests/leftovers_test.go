@@ -82,7 +82,7 @@ func columns(t *testing.T, conn storage.Conn) []string {
 
 func TestLeftovers_AppReportsColumnWithData(t *testing.T) {
 	holidayDB(t)
-	left, err := migrate.App(sqlite.Open, nil, nil, holidayStep)
+	left, err := migrate.App(sqlite.Open, nil, ddl.Schema{Steps: []ddl.Step{holidayStep}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +94,7 @@ func TestLeftovers_AppReportsColumnWithData(t *testing.T) {
 func TestLeftovers_AppCopiesMovedToWithoutDropping(t *testing.T) {
 	conn := holidayDB(t)
 	removed := []ddl.Removed{{Table: "holiday", Column: "label", MovedTo: "name"}}
-	if _, err := migrate.App(sqlite.Open, nil, removed, holidayStep); err != nil {
+	if _, err := migrate.App(sqlite.Open, nil, ddl.Schema{Steps: []ddl.Step{holidayStep}, Removed: removed}); err != nil {
 		t.Fatal(err)
 	}
 	if got := names(t, conn); len(got) != 2 || got[0] != "Navidad" || got[1] != "Año nuevo" {
@@ -108,14 +108,14 @@ func TestLeftovers_AppCopiesMovedToWithoutDropping(t *testing.T) {
 func TestLeftovers_AppCannotProbe(t *testing.T) {
 	t.Setenv(migrate.EnvDatabaseURL, "x")
 	open := func(string) (storage.Conn, error) { return &dummyCompilerConn{Conn: memConn()}, nil }
-	if _, err := migrate.App(open, nil, nil); err == nil {
+	if _, err := migrate.App(open, nil, ddl.Schema{}); err == nil {
 		t.Fatal("want an error: the connection cannot list columns")
 	}
 }
 
 func TestLeftovers_DropRemovesColumn(t *testing.T) {
 	conn := holidayDB(t)
-	if err := migrate.Drop(sqlite.Open, nil, "holiday.label"); err != nil {
+	if err := migrate.Drop(sqlite.Open, ddl.Schema{}, "holiday.label"); err != nil {
 		t.Fatal(err)
 	}
 	if got := columns(t, conn); len(got) != 2 {
@@ -129,7 +129,7 @@ func TestLeftovers_DropRemovesColumn(t *testing.T) {
 func TestLeftovers_DropCopiesBeforeDropping(t *testing.T) {
 	conn := holidayDB(t)
 	removed := []ddl.Removed{{Table: "holiday", Column: "label", MovedTo: "name"}}
-	if err := migrate.Drop(sqlite.Open, removed, "holiday.label"); err != nil {
+	if err := migrate.Drop(sqlite.Open, ddl.Schema{Removed: removed}, "holiday.label"); err != nil {
 		t.Fatal(err)
 	}
 	if got := names(t, conn); got[0] != "Navidad" || got[1] != "Año nuevo" {
@@ -142,7 +142,7 @@ func TestLeftovers_DropCopiesBeforeDropping(t *testing.T) {
 
 func TestLeftovers_DropNeedsTableAndColumn(t *testing.T) {
 	for _, target := range []string{"", "holiday", "holiday.", ".label"} {
-		if err := migrate.Drop(sqlite.Open, nil, target); !errors.Is(err, migrate.ErrDropTarget) {
+		if err := migrate.Drop(sqlite.Open, ddl.Schema{}, target); !errors.Is(err, migrate.ErrDropTarget) {
 			t.Errorf("%q: want ErrDropTarget, got %v", target, err)
 		}
 	}
