@@ -7,7 +7,7 @@ require (
 	webtyp.com/env v0.1.3
 	webtyp.com/model v0.2.15
 	webtyp.com/sqlite v0.3.30
-	webtyp.com/storage v0.1.18
+	webtyp.com/storage v0.1.19
 )
 
 require (
