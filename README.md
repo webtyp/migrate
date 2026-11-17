@@ -34,12 +34,12 @@ func main() {
 	drop := flag.String(migrate.FlagDrop, "", "drop one column, data included: table.column")
 	flag.Parse()
 	if *drop != "" {
-		if err := migrate.Drop(config.App.Server.Database, config.Schema, *drop); err != nil {
+		if err := migrate.Drop(config.Server.Database, config.Schema, *drop); err != nil {
 			log.Fatal(err)
 		}
 		return
 	}
-	left, err := migrate.App(config.App.Server.Database, log.Println, config.Schema)
+	left, err := migrate.App(config.Server.Database, log.Println, config.Schema)
 	if err != nil {
 		log.Fatal(err)
 	}

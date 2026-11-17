@@ -57,7 +57,7 @@ func Run(conn ddl.Execer, compiler ddl.Compiler, log func(...any), steps ...ddl.
 // leftover column that schema.Removed moves to another column, and returns the columns the
 // database keeps although no model has them (they hold data). It never drops a column.
 //
-// Example (migrate/main.go): left, err := migrate.App(config.App.Server.Database, log.Println, config.Schema)
+// Example (migrate/main.go): left, err := migrate.App(config.Server.Database, log.Println, config.Schema)
 func App(open func(dsn string) (storage.Conn, error), log func(...any), schema ddl.Schema) ([]ddl.Leftover, error) {
 	tables, err := ddl.Capture(schema.Steps)
 	if err != nil {
@@ -90,7 +90,7 @@ func App(open func(dsn string) (storage.Conn, error), log func(...any), schema d
 // "table.column". When schema.Removed moves that column to another one, it copies it first.
 // Only for a decision a person made (webtyp dev's «yes»).
 //
-// Example (migrate/main.go): err := migrate.Drop(config.App.Server.Database, config.Schema, "holiday.label")
+// Example (migrate/main.go): err := migrate.Drop(config.Server.Database, config.Schema, "holiday.label")
 func Drop(open func(dsn string) (storage.Conn, error), schema ddl.Schema, target string) error {
 	table, column, ok := strings.Cut(target, columnSeparator)
 	if !ok || table == "" || column == "" {
